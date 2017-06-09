@@ -1,0 +1,35 @@
+# This program takes data of tumor cells and classifies them as malignant or benign 
+# through the use of a pipeline.  Based on 'Python Machine Learning' by Sebastian Raschka.
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import train_test_split
+
+# Read the Breast Cancer Wisconsin dataset.
+df = pd.read_csv('https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data', header=None)
+
+# Assign 30 features to a NumPy array X.
+X = df.loc[:, 2:].values
+y = df.loc[:, 1].values
+
+# LabelEncoder takes the strings of 'M' and 'B' and converts them to integers.
+le = LabelEncoder()
+y = le.fit_transform(y)
+
+le.transform(['M', 'B'])
+
+# Split the dataset so that 80% of it is used for training while the other 20% is for testing.
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=1)
+
+# Use StandardScaler and LogisticRegression objects inside Pipeline to combine transformers
+# and estimators.  After the setup, fit it with the training dataset.
+pipe_lr = Pipeline([('scl', StandardScaler()), ('pca', PCA(n_components=2)),
+                    ('clf', LogisticRegression(random_state=1))])
+
+pipe_lr.fit(X_train, y_train)
+
+# Print the accuracy of the method with the test dataset.
+print('Test accuracy: %.3f' % pipe_lr.score(X_test, y_test))
